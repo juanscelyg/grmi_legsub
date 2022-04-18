@@ -10,7 +10,9 @@ from control_msgs.msg import PidState
 from motor.rmd import motor, rmd, frame, encode, decode
 
 class joint():
-    def __init__(self, id):
+    def __init__(self, can_network, leg_id, id):
+        self.can_network = can_network
+        self.leg_id = leg_id
         self.ID = id
         self.enabled = rmd.ENABLE
         self.mode = rmd.GET_ANGLE
@@ -23,34 +25,35 @@ class joint():
 
         ### ROS infrastructure 
         # CAN
-        self.sub_can = rospy.Subscriber('/frame_out', Frame, self.call_can)
-        self.pub_can = rospy.Publisher('/frame_in', Frame, queue_size=5)
+        self.sub_can = rospy.Subscriber('/can/'+str(self.can_network)+'/frame_out', Frame, self.call_can)
+        self.pub_can = rospy.Publisher('/can/'+str(self.can_network)+'/frame_in', Frame, queue_size=5)
         # ENVIRONMENT
-        self.sub_pos = rospy.Subscriber('/motor/'+str(self.ID)+'/cmd_pos', Vector3Stamped, self.call_pos)
-        self.sub_vel = rospy.Subscriber('/motor/'+str(self.ID)+'/cmd_vel', TwistStamped, self.call_vel)
-        self.sub_torque = rospy.Subscriber('/motor/'+str(self.ID)+'/cmd_torque', WrenchStamped, self.call_torque)
-        self.sub_init = rospy.Subscriber('/motor/'+str(self.ID)+'/init', Bool, self.call_init)
+        self.sub_pos = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/cmd_pos', Vector3Stamped, self.call_pos)
+        self.sub_vel = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/cmd_vel', TwistStamped, self.call_vel)
+        self.sub_torque = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/cmd_torque', WrenchStamped, self.call_torque)
+        self.sub_init = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/init', Bool, self.call_init)
         ###
-        self.sub_angle = rospy.Subscriber('/motor/'+str(self.ID)+'/get_angle', Bool, self.call_angle)
-        self.sub_multi = rospy.Subscriber('/motor/'+str(self.ID)+'/get_multi_angle', Bool, self.call_multi)
-        self.sub_state = rospy.Subscriber('/motor/'+str(self.ID)+'/get_state', Bool, self.call_state)
+        self.sub_angle = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/get_angle', Bool, self.call_angle)
+        self.sub_multi = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/get_multi_angle', Bool, self.call_multi)
+        self.sub_state = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/get_state', Bool, self.call_state)
         ###
-        self.sub_pid = rospy.Subscriber('/motor/'+str(self.ID)+'/controller/get_pid', Bool, self.call_controller_status)
-        self.sub_encoder = rospy.Subscriber('/motor/'+str(self.ID)+'/controller/get_encoder', Bool, self.call_encoder)
-        self.sub_status2 = rospy.Subscriber('/motor/'+str(self.ID)+'/controller/get_status', Bool, self.call_status)
-        self.sub_error = rospy.Subscriber('/motor/'+str(self.ID)+'/controller/get_error', Bool, self.call_error)
-        self.sub_zero = rospy.Subscriber('/motor/'+str(self.ID)+'/controller/set_zero', Bool, self.call_zero)
+        self.sub_pid = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/controller/get_pid', Bool, self.call_controller_status)
+        self.sub_encoder = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/controller/get_encoder', Bool, self.call_encoder)
+        self.sub_status2 = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/controller/get_status', Bool, self.call_status)
+        self.sub_error = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/controller/get_error', Bool, self.call_error)
+        self.sub_zero = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/controller/set_zero', Bool, self.call_zero)
         ###
-        self.pub_pos = rospy.Publisher('/motor/'+str(self.ID)+'/pos', Vector3Stamped, queue_size=1)
-        self.pub_vel = rospy.Publisher('/motor/'+str(self.ID)+'/vel', TwistStamped, queue_size=1)
-        self.pub_torque = rospy.Publisher('/motor/'+str(self.ID)+'/torque', WrenchStamped, queue_size=1)
-        self.pub_control = rospy.Publisher('/motor/'+str(self.ID)+'/controller/status', PidState, queue_size=1)
+        self.pub_pos = rospy.Publisher('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/pos', Vector3Stamped, queue_size=1)
+        self.pub_vel = rospy.Publisher('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/vel', TwistStamped, queue_size=1)
+        self.pub_torque = rospy.Publisher('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/torque', WrenchStamped, queue_size=1)
+        self.pub_control = rospy.Publisher('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/controller/status', PidState, queue_size=1)
 
 
     ### ---------------------- PRINT FUNCTIONS ---------------------- ##
 
     def print_status(self):
         rospy.loginfo("----------------------------------------------------------")
+        rospy.loginfo("Motor Network := %s" %self.can_network)
         rospy.loginfo("Motor ID := %s" %self.ID)
         rospy.loginfo("Motor pos := %s" %self.motor.angle)
         rospy.loginfo("Motor vel := %s" %self.motor.speed)
@@ -66,7 +69,7 @@ class joint():
 
     def get_state(self):
         msg=[]
-        self.call_angle(msg)
+        self.call_multi(msg)
         time.sleep(0.1)
         self.call_encoder(msg)
         time.sleep(0.1)
@@ -99,8 +102,11 @@ class joint():
 
     def call_pos(self, msg_pos):
         _frame = frame(self.ID)
-        _frame = self.encode.set_position(self.ID, msg_pos.vector.z)
-        self.motor.d_angle = msg_pos.vector.z
+        _angle = msg_pos.vector.z
+        if self.ID == 3 or self.ID == 6:
+            _angle = 2.0*_angle
+        _frame = self.encode.set_position(self.ID, _angle)
+        self.motor.d_angle = _angle
         self.send2can(_frame)
 
 
@@ -115,7 +121,7 @@ class joint():
     def call_init(self, msg):
         _frame = frame(self.ID)
         init_degree = 0.0
-        _frame = self.encode.set_position_dir(self.ID, init_degree, self.motor.angle)
+        _frame = self.encode.set_position(self.ID, init_degree)
         self.motor.d_angle = init_degree
         self.send2can(_frame)
 

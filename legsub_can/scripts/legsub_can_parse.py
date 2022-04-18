@@ -8,20 +8,20 @@ from geometry_msgs.msg import WrenchStamped, TwistStamped, Vector3Stamped
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 
 from motor.can_motor import joint
+from leg.leg import config, leg
 
 class LegsubCANParse():
     def __init__(self):
         #Globals
-        self.legs=1
-        #self.ids=[1,2,3,4,5,6]
-        self.ids=[3,6]
-        self.n_motors=len(self.ids)
-        self.motor=[]
-        for i in range(self.n_motors):
-            self.motor.append(joint(self.ids[i]))
-        time.sleep(1)
-        for i in range(len(self.motor)):
-            self.motor[i].get_state()        
+        self.can_legs = [config.can3, config.can3, config.can5, config.can5]
+        self.ids_legs = [config.A_type, config.B_type, config.A_type, config.B_type]
+        self.leg_sub = []
+        for i in range(len(self.can_legs)):
+            self.leg_sub.append(leg(self.can_legs[i], i ,self.ids_legs[i]))
+        for i in range(len(self.leg_sub)):
+            self.leg_sub[i].begin()
+            #rospy.loginfo("Leg %s has began " %str(i+1))
+        
 
 
 if __name__ == '__main__':
