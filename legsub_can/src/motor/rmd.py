@@ -25,6 +25,7 @@ class motor():
         self.error = "NO ERRORS"
         self.error_state(0)
         self.voltage = 0.0
+        self.mode=" "
 
     def error_state(self, index):
         if index == 1:
@@ -122,7 +123,7 @@ class encode():
         if abs(d_angle)>angle_saturation:
             d_angle = (d_angle/abs(d_angle))*angle_saturation
         '''
-        d_motor_angle = _frame.map(d_angle, -90.0, 90.0, -540.0, 540.0)
+        d_motor_angle = _frame.map(d_angle, 90.0, -90.0, -540.0, 540.0)
         _frame.data[0] = ctypes.c_uint8(int(rmd.POSITION_CONTROL, 16)).value
         _frame.data[2] = rmd.POSITION_CONTROL_MAX_SPEED
         _frame.data[3] = (rmd.POSITION_CONTROL_MAX_SPEED>>8) & 0xff
@@ -141,7 +142,7 @@ class encode():
             d_angle = (d_angle/abs(d_angle))*angle_saturation
         d_motor_angle = _frame.map(d_angle, 20.0, -20.0, 60.0, 300.0)
         '''
-        d_motor_angle = d_angle
+        d_motor_angle = _frame.map(d_angle, 90.0, -90.0, -540.0, 540.0)
         if angle>180.0:
             _frame.data[1] = ctypes.c_uint8(1).value
         else:
@@ -178,6 +179,11 @@ class encode():
         _frame = frame(id)
         _frame.data[0]=ctypes.c_uint8(int(rmd.SET_ZERO, 16)).value
         return _frame
+
+    def stop(self, id):
+        _frame = frame(id)
+        _frame.data[0]=ctypes.c_uint8(int(rmd.MOTOR_STOP, 16)).value
+        return _frame
         
 
 class decode():
@@ -203,13 +209,16 @@ class decode():
             _motor = self.get_encoder(_motor,_frame)
         if struct.unpack("B", _frame.data[0])[0] == int(rmd.SET_ZERO,16):
             _motor = self.set_zero(_motor,_frame)
+        if struct.unpack("B", _frame.data[0])[0] == int(rmd.MOTOR_STOP,16):
+            _motor = self.stop(_motor,_frame)
 
-        print("Motor "+str(_frame.id)+" status := "+rmd.labels[hex(struct.unpack("B", _frame.data[0])[0])])
+        _motor.mode = rmd.labels[hex(struct.unpack("B", _frame.data[0])[0])]
+        #print("Motor "+str(_frame.id)+" status := "+rmd.labels[hex(struct.unpack("B", _frame.data[0])[0])])
         return _motor
 
     def get_angle(self, _motor, _frame):
         angle = ctypes.c_long((struct.unpack("B", _frame.data[7])[0]<<8) | struct.unpack("B", _frame.data[6])[0] ).value
-        _motor.angle = angle*0.01 #_frame.map(angle*0.01, 60.0, 300.0, -20.0, 20.0)
+        _motor.angle = _frame.map(angle*0.01, 60.0, 300.0, 20.0, -20.0)
         return _motor
 
     def get_multi_angle(self, _motor, _frame):
@@ -217,7 +226,7 @@ class decode():
             | (struct.unpack("B", _frame.data[6])[0]<<40) | (struct.unpack("B", _frame.data[5])[0]<<32) \
                 | (struct.unpack("B", _frame.data[4])[0]<<24) | (struct.unpack("B", _frame.data[3])[0]<<16) \
                     | (struct.unpack("B", _frame.data[2])[0]<<8) | (struct.unpack("B", _frame.data[1])[0]) ).value
-        _motor.angle = angle*0.01 #_frame.map(angle*0.01, 60.0, 300.0, -20.0, 20.0)
+        _motor.angle =  _frame.map(angle*0.01, 60.0, 300.0, 20.0, -20.0)
         return _motor
 
     def get_status1(self, _motor, _frame):
@@ -235,7 +244,7 @@ class decode():
         _motor.speed = speed #_frame.map(speed, -2048, 2048, -33, 33)
         angle = ctypes.c_long((struct.unpack("B", _frame.data[7])[0]<<8)| struct.unpack("B", _frame.data[6])[0] ).value
         _angle = _frame.map(angle, 0.0, 65535.0, 0.0, 360.0)
-        _motor.angle = _angle #_frame.map(_angle, 60.0, 300.0, -20.0, 20.0)
+        _motor.angle = _frame.map(_angle, -540.0, 540.0, 90.0, -90.0, )
         return _motor
 
     def get_pid(self, _motor, _frame):
@@ -255,4 +264,8 @@ class decode():
 
     def set_zero(self, _motor,_frame):
         _motor.encoder_offset = ((struct.unpack("B", _frame.data[7])[0]<<8)| struct.unpack("B", _frame.data[6])[0] )
+        return _motor
+
+    def stop(self, _motor,_frame):
+        pass
         return _motor
