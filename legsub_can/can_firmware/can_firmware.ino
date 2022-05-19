@@ -36,8 +36,7 @@ void frame_sub(const can_msgs::Frame& msg ) {
   unsigned char buf[8];
   memcpy ( &buf, &msg.data, sizeof(msg.data) );
   CAN.sendMsgBuf(msg.id, msg.is_extended, msg.dlc, buf);
-  //CAN.sendMsgBuf(0x141, 0, 8, buf);
-  delay(10);
+  delay(1);
   frame_pub();
 }
 
@@ -51,6 +50,7 @@ void setup() {
   {
     digitalWrite(LED_D8, HIGH);
   }
+  nh.getHardware()->setBaud(115200);
   // node Init
   nh.initNode();
   // Servers init
