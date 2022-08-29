@@ -5,11 +5,10 @@ import rospy
 from geometry_msgs.msg import Vector3Stamped 
 from std_srvs.srv import SetBool, SetBoolResponse
 
-from motor.can_motor import joint
+from motor.dgm_can_motor import joint
 
 class config():
-    can3 = 0
-    can5 = 1
+    can_net_id = 0
     A_type = np.array([1,2,3])
     B_type = np.array([4,5,6])
 
@@ -60,24 +59,12 @@ class leg():
     def print_status(self):
         for i in range(len(self.motors)):
             self.motors[i].get_state()
-            self.motors[i].print_status()
 
     ### ---------------------- API FUNCTIONS ---------------------- ##
 
     def begin(self):
-        angle_set = 0.0
-        if self.ids[2]==3:
-            _angle = angle_set
-        if self.ids[2]==6:
-            _angle = -angle_set
-        msg_pos = Vector3Stamped()
-        msg_pos.vector.z = _angle
-        self.motors[2].call_pos(msg_pos)
-        _angle = 0.0
-        msg_pos.vector.z = _angle
-        self.motors[0].call_pos(msg_pos)
-        msg_pos.vector.z = _angle*-1.0
-        self.motors[1].call_pos(msg_pos)
+        for i in range(len(self.motors)):
+            self.motors[i].enable()
         
 
     def set_init(self):

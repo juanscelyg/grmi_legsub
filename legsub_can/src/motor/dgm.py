@@ -26,17 +26,17 @@ class dgm():
     SPEED_CONTROL_MIN = -45.0
     SPEED_CONTROL_MAX = 45.0
     GAIN_KP_MAX = 500.0
-    GAIN_KD_MAX = 5.0
-    GAIN_FF_MAX = 15.0
+    GAIN_KD_MAX = 50.0
+    GAIN_FF_MAX = 10.0
     MOTOR_ENTER = "0xFC"
     MOTOR_EXIT = "0xFD"
     SET_ZERO = "0xFE"
     #
     labels={
-        "0xff":"POSITION_CONTROL",
-        "0xfc":"MOTOR_ENTER",
-        "0xfd":"MOTOR_EXIT",
-        "0xfe":"SET_ZERO"
+        "0xFF":"POSITION_CONTROL",
+        "0xFC":"MOTOR_ENTER",
+        "0xFD":"MOTOR_EXIT",
+        "0xFE":"SET_ZERO"
     }
 
 class frame():
@@ -66,14 +66,16 @@ class encode():
         _kp = int(_frame.map(kp, 0, dgm.GAIN_KP_MAX, 0, dgm.BITS_12))
         _kd = int(_frame.map(kd, 0, dgm.GAIN_KD_MAX, 0, dgm.BITS_12))
         _ff = int(_frame.map(ff, 0, dgm.GAIN_FF_MAX, 0, dgm.BITS_12))
-        _frame.data[0] = (pos>>8) & 0xff
-        _frame.data[1] = pos & 0xff
-        _frame.data[2] = (vel >> 4) & 0xff
-        _frame.data[3] = ((vel & 0x000f) << 4) + ((_kp >> 8) & 0xff)
-        _frame.data[4] = _kp & 0xff
-        _frame.data[5] = _kd >> 4
-        _frame.data[6] = ((_kd & 0x000f)<<4) + (_ff >> 8)
-        _frame.data[7] = _ff & 0xff
+        #print(pos, vel, _kp, _kd, _ff)
+        _frame.data[0] = ((pos>>8) & 0xff)
+        _frame.data[1] = (pos & 0xff)
+        _frame.data[2] = ((vel >> 4) & 0xff)
+        _frame.data[3] = (((vel & 0x000f) << 4) + ((_kp >> 8) & 0xff))
+        _frame.data[4] = (_kp & 0xff)
+        _frame.data[5] = (_kd >> 4)
+        _frame.data[6] = (((_kd & 0x000f)<<4) + (_ff >> 8))
+        _frame.data[7] = (_ff & 0xff)
+        #print(_frame.data)
         return _frame
 
     def enable(self, id):

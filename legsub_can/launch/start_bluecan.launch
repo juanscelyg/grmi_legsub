@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<launch>
+
+    <arg name="can_net" default="0"/>
+
+    <!-- Launch the node to get the values of the mechanism -->
+    <group ns="can_net">
+      <node pkg="rosserial_python" type="serial_node.py" name="serial_node_$(arg can_net)">
+        <param name="port" value="/dev/ttyACM0"/>
+        <param name="baud" value="115200"/>
+        <remap from="/frame_in" to="/can/$(arg can_net)/frame_in"/>
+        <remap from="/frame_out" to="/can/$(arg can_net)/frame_out"/>
+      </node>
+    </group>
+
+    <!-- Launch the node to get info -->
+    <node pkg="legsub_can" type="blue_leg_can_parse.py" name="blue_leg_can_parse" output="screen"></node>
+    
+</launch>

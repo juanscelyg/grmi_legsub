@@ -11,7 +11,8 @@ can_msgs::Frame frame_out_msg;
 ros::Publisher pub_frame("/frame_out", &frame_out_msg);
 
 // CAN infraestructure
-const int SPI_CS_PIN = 10;
+const int SPI_CS_PIN = 9; // Shield seedio
+//const int SPI_CS_PIN = 10; // Shield Adafruit
 MCP_CAN CAN(SPI_CS_PIN);
 
 
