@@ -21,10 +21,10 @@ class joint():
         self.decode = decode()
         # motor parameters
         self.motor = motor()
-        self.max_vel = 1.0
-        self.kp = 1.0
-        self.kd = 1.5
-        self.ff = 0.0
+        self.max_vel = rospy.get_param("max_vel")
+        self.kp  = rospy.get_param("kp")
+        self.kd  = rospy.get_param("kd")
+        self.ff  = rospy.get_param("ff")
         self.timer_time = 0.5
 
         ### ROS infrastructure 

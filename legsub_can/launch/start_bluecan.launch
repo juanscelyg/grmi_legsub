@@ -14,6 +14,7 @@
     </group>
 
     <!-- Launch the node to get info -->
+    <rosparam file="$(find legsub_can)/config/motors_config.yaml"/>
     <node pkg="legsub_can" type="blue_leg_can_parse.py" name="blue_leg_can_parse" output="screen"></node>
     
 </launch>
