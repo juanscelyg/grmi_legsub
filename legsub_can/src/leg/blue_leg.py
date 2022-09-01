@@ -11,6 +11,7 @@ class config():
     can_net_id = 0
     A_type = np.array([1,2,3])
     B_type = np.array([4,5,6])
+    C_type = np.array([7])
 
 class leg():
     def __init__(self, can_network=0, leg_id=0, ids_vector = np.array([1,2,3])):

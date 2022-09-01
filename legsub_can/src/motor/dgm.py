@@ -26,7 +26,7 @@ class dgm():
     SPEED_CONTROL_MIN = -45.0
     SPEED_CONTROL_MAX = 45.0
     GAIN_KP_MAX = 500.0
-    GAIN_KD_MAX = 50.0
+    GAIN_KD_MAX = 500.0
     GAIN_FF_MAX = 10.0
     MOTOR_ENTER = "0xFC"
     MOTOR_EXIT = "0xFD"

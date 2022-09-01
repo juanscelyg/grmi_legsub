@@ -66,13 +66,13 @@ class joint():
         self.pub_can.publish(msg_frame)
     
     def call_can(self, msg_can):
-        self.get_state()
         if msg_can.id == self.frame.real_id:
             _frame = frame(msg_can.id)
             _frame.is_extended = msg_can.is_extended
             _frame.dlc = msg_can.dlc
             _frame.data = msg_can.data
             self.motor = self.decode.get_data(self.motor, _frame)
+            self.get_state()
             
 
     ### ---------------------- CMD FUNCTIONS ---------------------- ##
@@ -86,12 +86,8 @@ class joint():
         # crear msg de position
 
     def call_state(self, req):
-        self.get_state()
-        if req.data:
-            self.print_status()
-            return SetBoolResponse(req.data, 'QUERY:: can network: '+str(self.can_network)+' leg: '+str(self.leg_id)+' motor: '+str(self.ID)+' State was required. Results were displayed on screen.')
-        else:
-            return SetBoolResponse(req.data, 'QUERY:: can network: '+str(self.can_network)+' leg: '+str(self.leg_id)+' motor: '+str(self.ID)+' State was required. Results were not displayed on screen.')
+        self.print_status()
+        return SetBoolResponse(req.data, 'QUERY:: can network: '+str(self.can_network)+' leg: '+str(self.leg_id)+' motor: '+str(self.ID)+' State was required. Results were displayed on screen.')
 
     def call_zero(self, req):
         self.set_zero()
@@ -123,8 +119,7 @@ class joint():
 
     def get_state(self):
         time.sleep(0.1)
-        self.print_status()
-        
+        self.print_status()    
 
     def set_zero(self):
         _frame = frame(self.ID)

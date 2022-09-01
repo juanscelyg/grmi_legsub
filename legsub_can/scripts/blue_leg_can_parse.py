@@ -8,8 +8,8 @@ from leg.blue_leg import config, leg
 class BlueLegCANParse():
     def __init__(self):
         #Globals
-        self.can_legs = [config.can_net_id, config.can_net_id]
-        self.ids_legs = [config.A_type, config.B_type]
+        self.can_legs = [config.can_net_id, config.can_net_id, config.can_net_id]
+        self.ids_legs = [config.A_type, config.B_type, config.C_type]
         self.blueleg_sub = []
         for i in range(len(self.can_legs)):
             self.blueleg_sub.append(leg(self.can_legs[i], i ,self.ids_legs[i]))
