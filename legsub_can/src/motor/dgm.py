@@ -23,11 +23,11 @@ class dgm():
     POSITION_CONTROL_MAX = 4.0*math.pi
     POSITION_CONTROL_LOW_LIMIT = 0
     POSITION_CONTROL_HIGH_LIMIT = BITS_16
-    SPEED_CONTROL_MIN = -45.0
-    SPEED_CONTROL_MAX = 45.0
+    SPEED_CONTROL_MIN = -30.0
+    SPEED_CONTROL_MAX = 30.0
     GAIN_KP_MAX = 500.0
-    GAIN_KD_MAX = 500.0
-    GAIN_FF_MAX = 10.0
+    GAIN_KD_MAX = 100.0
+    GAIN_FF_MAX = 18.0
     MOTOR_ENTER = "0xFC"
     MOTOR_EXIT = "0xFD"
     SET_ZERO = "0xFE"
@@ -61,12 +61,19 @@ class encode():
 
     def set_angle(self, id, d_angle, d_vel, kp, kd, ff):
         _frame = frame(id)
+        '''
         pos = int(_frame.map(d_angle, dgm.POSITION_CONTROL_MIN, dgm.POSITION_CONTROL_MAX, dgm.POSITION_CONTROL_LOW_LIMIT, dgm.POSITION_CONTROL_HIGH_LIMIT))
         vel = int(_frame.map(d_vel, 0, dgm.SPEED_CONTROL_MAX, 0, dgm.BITS_12))
         _kp = int(_frame.map(kp, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
         _kd = int(_frame.map(kd, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
         _ff = int(_frame.map(ff, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
-        #print(pos, vel, _kp, _kd, _ff)
+        '''
+        pos = 5500
+        vel = 500
+        _kp = 100
+        _kd = 50
+        _ff = 0
+        print(pos, vel, _kp, _kd, _ff)
         _frame.data[0] = ((pos>>8) & 0xff)
         _frame.data[1] = (pos & 0xff)
         _frame.data[2] = ((vel >> 4) & 0xff)
