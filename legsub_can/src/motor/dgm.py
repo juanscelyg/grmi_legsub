@@ -63,9 +63,9 @@ class encode():
         _frame = frame(id)
         pos = int(_frame.map(d_angle, dgm.POSITION_CONTROL_MIN, dgm.POSITION_CONTROL_MAX, dgm.POSITION_CONTROL_LOW_LIMIT, dgm.POSITION_CONTROL_HIGH_LIMIT))
         vel = int(_frame.map(d_vel, 0, dgm.SPEED_CONTROL_MAX, 0, dgm.BITS_12))
-        _kp = int(_frame.map(kp, 0, dgm.GAIN_KP_MAX, 0, dgm.BITS_12))
-        _kd = int(_frame.map(kd, 0, dgm.GAIN_KD_MAX, 0, dgm.BITS_12))
-        _ff = int(_frame.map(ff, 0, dgm.GAIN_FF_MAX, 0, dgm.BITS_12))
+        _kp = int(_frame.map(kp, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
+        _kd = int(_frame.map(kd, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
+        _ff = int(_frame.map(ff, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
         #print(pos, vel, _kp, _kd, _ff)
         _frame.data[0] = ((pos>>8) & 0xff)
         _frame.data[1] = (pos & 0xff)
