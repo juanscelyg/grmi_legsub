@@ -23,7 +23,7 @@ class joint():
         self.decode = decode()
         # motor parameters
         self.motor = motor()
-        self.motor = dgm.labels[dgm.MOTOR_EXIT]
+        self.motor.mode = dgm.labels[dgm.MOTOR_EXIT]
         self.max_vel = rospy.get_param("max_vel")
         self.kp  = rospy.get_param("kp")
         self.kd  = rospy.get_param("kd")
