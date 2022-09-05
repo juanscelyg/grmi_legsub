@@ -28,7 +28,8 @@ class dgm():
     GAIN_KP_MAX = 1000.0
     GAIN_KD_MAX = 5.0
     GAIN_FF_MAX = 33.0
-    CURRENT_MAX = 40.0
+    CURRENT_MIN = -14.0
+    CURRENT_MAX = 14.0
     MOTOR_ENTER = "0xFC"
     MOTOR_EXIT = "0xFD"
     SET_ZERO = "0xFE"
@@ -106,6 +107,6 @@ class decode():
         speed = ctypes.c_long((struct.unpack("B", _frame.data[3])[0]<<4) | ((struct.unpack("B", _frame.data[2])[0] & 0xf0) >> 4)).value
         current = ctypes.c_long(((struct.unpack("B", _frame.data[4])[0] & 0x0f) << 8) | struct.unpack("B", _frame.data[5])[0]).value
         _angle = _frame.map(angle, dgm.POSITION_CONTROL_HIGH_LIMIT, dgm.POSITION_CONTROL_LOW_LIMIT, dgm.POSITION_CONTROL_MIN, dgm.POSITION_CONTROL_MAX)
-        _speed = _frame.map(speed, 0, dgm.BITS_12, 0, dgm.SPEED_CONTROL_MAX)
-        _current = _frame.map(current, 0, dgm.BITS_12, 0, dgm.CURRENT_MAX)
+        _speed = _frame.map(speed, 0, dgm.BITS_12, dgm.SPEED_CONTROL_MIN, dgm.SPEED_CONTROL_MAX)
+        _current = _frame.map(current, 0, dgm.BITS_12, dgm.CURRENT_MIN, dgm.CURRENT_MAX)
         return _angle, _speed, _current
