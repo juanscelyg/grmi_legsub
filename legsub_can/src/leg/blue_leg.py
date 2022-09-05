@@ -23,7 +23,6 @@ class leg():
         for i in range(self.n_motors):
             self.motors.append(joint(self.can_network, self.ID, self.ids[i]))
         time.sleep(1)
-        self.print_status()
 
         # SERVICES
         self.srv_init = rospy.Service('/leg/'+str(self.ID)+'/init', SetBool, self.call_init)

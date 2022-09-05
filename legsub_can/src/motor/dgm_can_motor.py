@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import time
+import ctypes
+import struct
 
 import rospy
 from std_srvs.srv import SetBool, SetBoolResponse
@@ -21,6 +23,7 @@ class joint():
         self.decode = decode()
         # motor parameters
         self.motor = motor()
+        self.motor = dgm.labels[dgm.MOTOR_EXIT]
         self.max_vel = rospy.get_param("max_vel")
         self.kp  = rospy.get_param("kp")
         self.kd  = rospy.get_param("kd")
@@ -66,14 +69,16 @@ class joint():
         self.pub_can.publish(msg_frame)
     
     def call_can(self, msg_can):
-        if msg_can.id == self.frame.real_id:
-            _frame = frame(msg_can.id)
+        _id = struct.unpack("B", msg_can.data[0])[0]
+        if _id == self.ID:
+            _frame = frame(_id)
             _frame.is_extended = msg_can.is_extended
             _frame.dlc = msg_can.dlc
             _frame.data = msg_can.data
-            self.motor = self.decode.get_data(self.motor, _frame)
-            self.get_state()
-            
+            angle, speed, current = self.decode.get_data(_frame)
+            self.motor.angle = angle
+            self.motor.speed = speed
+            self.motor.current = current         
 
     ### ---------------------- CMD FUNCTIONS ---------------------- ##
 
@@ -82,14 +87,23 @@ class joint():
         _angle = msg_pos.vector.z
         _frame = self.encode.set_angle(self.ID, _angle, self.max_vel, self.kp, self.kd, self.ff)
         self.motor.d_angle = _angle
+        self.motor.mode = dgm.labels[dgm.POSITION_CONTROL]
         self.send2can(_frame)
-        # crear msg de position
+        # visualize
+        self.get_state()
+        # Publish angle
+        msg_angle = Vector3Stamped()
+        msg_angle.header.stamp = rospy.Time.now()
+        msg_angle.vector.z = self.motor.angle
+        self.pub_pos.publish(msg_angle)
+
 
     def call_state(self, req):
         self.print_status()
         return SetBoolResponse(req.data, 'QUERY:: can network: '+str(self.can_network)+' leg: '+str(self.leg_id)+' motor: '+str(self.ID)+' State was required. Results were displayed on screen.')
 
     def call_zero(self, req):
+        self.motor.mode = dgm.labels[dgm.SET_ZERO]
         self.set_zero()
         if req.data:
             self.print_status()
@@ -99,10 +113,12 @@ class joint():
 
     def call_enable(self, req):
         if req.data:
+            self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
             self.enable()
             self.print_status()
             return SetBoolResponse(req.data, 'QUERY:: can network: '+str(self.can_network)+' leg: '+str(self.leg_id)+' motor: '+str(self.ID)+' was enabled. Now it is operative, the GREEN Led must be on.')
         else:
+            self.motor.mode = dgm.labels[dgm.MOTOR_EXIT]
             self.disable()
             self.print_status()
             return SetBoolResponse(req.data, 'QUERY:: can network: '+str(self.can_network)+' leg: '+str(self.leg_id)+' motor: '+str(self.ID)+' was disabled. It is not operative, the RED Led must be on.')
@@ -115,6 +131,7 @@ class joint():
         init_degree = 0.0
         _frame = self.encode.set_angle(self.ID, id, init_degree, self.max_vel, self.kp, self.kd, self.ff)
         self.motor.d_angle = init_degree
+        self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
         self.send2can(_frame)
 
     def get_state(self):

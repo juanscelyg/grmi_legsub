@@ -23,11 +23,12 @@ class dgm():
     POSITION_CONTROL_MAX = 4.0*math.pi
     POSITION_CONTROL_LOW_LIMIT = 0
     POSITION_CONTROL_HIGH_LIMIT = BITS_16
-    SPEED_CONTROL_MIN = -30.0
-    SPEED_CONTROL_MAX = 30.0
-    GAIN_KP_MAX = 500.0
-    GAIN_KD_MAX = 100.0
-    GAIN_FF_MAX = 18.0
+    SPEED_CONTROL_MIN = -65.0
+    SPEED_CONTROL_MAX = 65.0
+    GAIN_KP_MAX = 1000.0
+    GAIN_KD_MAX = 5.0
+    GAIN_FF_MAX = 33.0
+    CURRENT_MAX = 40.0
     MOTOR_ENTER = "0xFC"
     MOTOR_EXIT = "0xFD"
     SET_ZERO = "0xFE"
@@ -61,19 +62,12 @@ class encode():
 
     def set_angle(self, id, d_angle, d_vel, kp, kd, ff):
         _frame = frame(id)
-        '''
-        pos = int(_frame.map(d_angle, dgm.POSITION_CONTROL_MIN, dgm.POSITION_CONTROL_MAX, dgm.POSITION_CONTROL_LOW_LIMIT, dgm.POSITION_CONTROL_HIGH_LIMIT))
+        pos = int(_frame.map(d_angle, dgm.POSITION_CONTROL_MIN, dgm.POSITION_CONTROL_MAX, dgm.POSITION_CONTROL_HIGH_LIMIT, dgm.POSITION_CONTROL_LOW_LIMIT))
         vel = int(_frame.map(d_vel, 0, dgm.SPEED_CONTROL_MAX, 0, dgm.BITS_12))
-        _kp = int(_frame.map(kp, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
-        _kd = int(_frame.map(kd, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
-        _ff = int(_frame.map(ff, 0, dgm.BITS_12, 0, dgm.BITS_12)) # 1 to 1 test
-        '''
-        pos = 5500
-        vel = 500
-        _kp = 100
-        _kd = 50
-        _ff = 0
-        print(pos, vel, _kp, _kd, _ff)
+        _kp = int(_frame.map(kp, 0, dgm.GAIN_KP_MAX, 0, dgm.BITS_12)) 
+        _kd = int(_frame.map(kd, 0, dgm.GAIN_KD_MAX, 0, dgm.BITS_12)) 
+        _ff = int(_frame.map(ff, 0, dgm.GAIN_FF_MAX, 0, dgm.BITS_12)) 
+        #print(pos, vel, _kp, _kd, _ff)
         _frame.data[0] = ((pos>>8) & 0xff)
         _frame.data[1] = (pos & 0xff)
         _frame.data[2] = ((vel >> 4) & 0xff)
@@ -104,8 +98,14 @@ class decode():
     def __init__(self):
         pass
 
-    def get_data(self, _motor, _frame):
-        _motor.angle = ctypes.c_long((struct.unpack("B", _frame.data[1])[0]<<8) | struct.unpack("B", _frame.data[2])[0] ).value
-        _motor.speed = ctypes.c_long((struct.unpack("B", _frame.data[3])[0]<<4) | ((struct.unpack("B", _frame.data[2])[0] & 0xf0) >> 4)).value
-        _motor.current = ctypes.c_long(((struct.unpack("B", _frame.data[4])[0] & 0x0f) << 8) | struct.unpack("B", _frame.data[5])[0]).value
-        return _motor
+    def get_data(self, _frame):
+        angle = 0.0
+        speed = 0.0
+        current = 0.0
+        angle = ctypes.c_long((struct.unpack("B", _frame.data[1])[0]<<8) | struct.unpack("B", _frame.data[2])[0] ).value
+        speed = ctypes.c_long((struct.unpack("B", _frame.data[3])[0]<<4) | ((struct.unpack("B", _frame.data[2])[0] & 0xf0) >> 4)).value
+        current = ctypes.c_long(((struct.unpack("B", _frame.data[4])[0] & 0x0f) << 8) | struct.unpack("B", _frame.data[5])[0]).value
+        _angle = _frame.map(angle, dgm.POSITION_CONTROL_HIGH_LIMIT, dgm.POSITION_CONTROL_LOW_LIMIT, dgm.POSITION_CONTROL_MIN, dgm.POSITION_CONTROL_MAX)
+        _speed = _frame.map(speed, 0, dgm.BITS_12, 0, dgm.SPEED_CONTROL_MAX)
+        _current = _frame.map(current, 0, dgm.BITS_12, 0, dgm.CURRENT_MAX)
+        return _angle, _speed, _current
