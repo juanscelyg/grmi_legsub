@@ -11,12 +11,14 @@ class motor():
         self.speed = 0.0
         self.current = 0.0
         self.mode = ""
+        self.zero = 0.0
 
 class dgm():
     ENABLE = True
     DISABLE = False
     BITS_16 = 65535
     BITS_12 = 4095
+    ZERO = -4.71 # Zero reference
     #
     POSITION_CONTROL = "0xFF"
     POSITION_CONTROL_MIN = -4.0*math.pi

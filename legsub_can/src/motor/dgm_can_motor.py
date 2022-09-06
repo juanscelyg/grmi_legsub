@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import time
-import ctypes
 import struct
 
 import rospy
@@ -24,10 +23,12 @@ class joint():
         # motor parameters
         self.motor = motor()
         self.motor.mode = dgm.labels[dgm.MOTOR_EXIT]
-        self.max_vel = rospy.get_param("max_vel")
-        self.kp  = rospy.get_param("kp")
-        self.kd  = rospy.get_param("kd")
-        self.ff  = rospy.get_param("ff")
+        self.motor.zero = dgm.ZERO
+        self.max_vel = rospy.get_param("motor"+str(id)+"/max_vel")
+        self.kp  = rospy.get_param("motor"+str(id)+"/kp")
+        self.kd  = rospy.get_param("motor"+str(id)+"/kd")
+        self.ff  = rospy.get_param("motor"+str(id)+"/ff")
+        self.offset = rospy.get_param("motor"+str(id)+"/offset")
         self.timer_time = 0.5
 
         ### ROS infrastructure 
@@ -128,8 +129,8 @@ class joint():
 
     def set_init(self):
         _frame = frame(self.ID)
-        init_degree = 0.0
-        _frame = self.encode.set_angle(self.ID, id, init_degree, self.max_vel, self.kp, self.kd, self.ff)
+        init_degree = self.motor.zero
+        _frame = self.encode.set_angle(self.ID, init_degree, self.max_vel, self.kp, self.kd, self.ff)
         self.motor.d_angle = init_degree
         self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
         self.send2can(_frame)

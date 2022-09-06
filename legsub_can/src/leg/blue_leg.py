@@ -68,19 +68,9 @@ class leg():
         
 
     def set_init(self):
-        angle_set = 55.0
-        if self.ids[2]==3:
-            _angle = angle_set
-        if self.ids[2]==6:
-            _angle = -angle_set
-        msg_pos = Vector3Stamped()
-        msg_pos.vector.z = _angle
-        self.motors[2].call_pos(msg_pos)   
-        _angle = 0.0
-        msg_pos.vector.z = _angle
-        self.motors[0].call_pos(msg_pos)
-        msg_pos.vector.z = _angle*-1.0
-        self.motors[1].call_pos(msg_pos) 
+        if self.ID != 2:
+            self.motors[0].set_init()
+            self.motors[1].set_init()
 
     def stop(self):
         for i in range(len(self.motors)):
