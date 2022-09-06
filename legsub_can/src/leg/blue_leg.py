@@ -27,6 +27,7 @@ class leg():
         # SERVICES
         self.srv_init = rospy.Service('/leg/'+str(self.ID)+'/init', SetBool, self.call_init)
         self.srv_begin = rospy.Service('/leg/'+str(self.ID)+'/begin', SetBool, self.call_begin)
+        self.srv_zero = rospy.Service('/leg/'+str(self.ID)+'/zero', SetBool, self.call_zero)
         self.srv_stop = rospy.Service('/leg/'+str(self.ID)+'/stop', SetBool, self.call_stop)
 
     ### ---------------------- CMD FUNCTIONS ---------------------- ##
@@ -45,6 +46,14 @@ class leg():
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Begin was required.')
         else:
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Begin was required.')
+
+    def call_zero(self, req):
+        self.move_zero()
+        if req.data:
+            self.print_status()
+            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Zero was required.')
+        else:
+            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Zero was required.')
 
     def call_stop(self, req):
         self.set_init()
@@ -71,6 +80,11 @@ class leg():
         if self.ID != 2:
             self.motors[0].set_init()
             self.motors[1].set_init()
+
+    def move_zero(self):
+        if self.ID != 2:
+            self.motors[0].move_zero()
+            self.motors[1].move_zero()
 
     def stop(self):
         for i in range(len(self.motors)):

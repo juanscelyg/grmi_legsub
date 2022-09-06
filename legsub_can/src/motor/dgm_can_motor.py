@@ -135,6 +135,14 @@ class joint():
         self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
         self.send2can(_frame)
 
+    def move_zero(self):
+        _frame = frame(self.ID)
+        init_degree = self.offset
+        _frame = self.encode.set_angle(self.ID, init_degree, self.max_vel, self.kp, self.kd, self.ff)
+        self.motor.d_angle = init_degree
+        self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
+        self.send2can(_frame)
+
     def get_state(self):
         time.sleep(0.1)
         self.print_status()    
