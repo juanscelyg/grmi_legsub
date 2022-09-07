@@ -24,6 +24,7 @@ class joint():
         self.motor = motor()
         self.motor.mode = dgm.labels[dgm.MOTOR_EXIT]
         self.motor.zero = dgm.ZERO
+        self.motor.d_angle = dgm.ZERO
         self.max_vel = rospy.get_param("motor"+str(id)+"/max_vel")
         self.kp  = rospy.get_param("motor"+str(id)+"/kp")
         self.kd  = rospy.get_param("motor"+str(id)+"/kd")
@@ -39,6 +40,8 @@ class joint():
         # MSGS
         # msgs in 
         self.sub_pos = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/cmd_pos', Vector3Stamped, self.call_pos)
+        if self.ID == 3 or self.ID == 6:
+            self.sub_vel = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/cmd_vel', Vector3Stamped, self.call_vel)
         # msgs out
         self.pub_pos = rospy.Publisher('/can/'+str(self.can_network)+'/leg/'+str(self.leg_id)+'/motor/'+str(self.ID)+'/pos', Vector3Stamped, queue_size=5)
         # SERVICES 
@@ -98,6 +101,16 @@ class joint():
         msg_angle.vector.z = self.motor.angle
         self.pub_pos.publish(msg_angle)
 
+    def call_vel(self, msg_vel):
+        _frame = frame(self.ID)
+        _vel = msg_vel.vector.z
+        _frame = self.encode.set_angle(self.ID, 0.0, _vel, self.kp, self.kd, self.ff)
+        self.motor.d_vel = _vel
+        self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
+        self.send2can(_frame)
+        # visualize
+        self.get_state()
+
 
     def call_state(self, req):
         self.print_status()
@@ -130,17 +143,25 @@ class joint():
     def set_init(self):
         _frame = frame(self.ID)
         init_degree = self.motor.zero
-        _frame = self.encode.set_angle(self.ID, init_degree, self.max_vel, self.kp, self.kd, self.ff)
         self.motor.d_angle = init_degree
+        _frame = self.encode.set_angle(self.ID, init_degree, self.max_vel/10.0, self.kp, self.kd, self.ff)
         self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
         self.send2can(_frame)
 
     def move_zero(self):
         _frame = frame(self.ID)
         init_degree = self.offset
-        _frame = self.encode.set_angle(self.ID, init_degree, self.max_vel, self.kp, self.kd, self.ff)
         self.motor.d_angle = init_degree
+        _frame = self.encode.set_angle(self.ID, init_degree, self.max_vel/10.0, self.kp, self.kd, self.ff)
         self.motor.mode = dgm.labels[dgm.MOTOR_ENTER]
+        self.send2can(_frame)
+
+    def stop(self):
+        _frame = frame(self.ID)
+        _vel = 0.0
+        _frame = self.encode.set_angle(self.ID, 0.0, _vel, self.kp, self.kd, self.ff)
+        self.motor.d_vel = _vel
+        self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
         self.send2can(_frame)
 
     def get_state(self):

@@ -23,12 +23,12 @@ class leg():
         for i in range(self.n_motors):
             self.motors.append(joint(self.can_network, self.ID, self.ids[i]))
         time.sleep(1)
+        self.begin()
 
         # SERVICES
-        self.srv_init = rospy.Service('/leg/'+str(self.ID)+'/init', SetBool, self.call_init)
-        self.srv_begin = rospy.Service('/leg/'+str(self.ID)+'/begin', SetBool, self.call_begin)
-        self.srv_zero = rospy.Service('/leg/'+str(self.ID)+'/zero', SetBool, self.call_zero)
-        self.srv_stop = rospy.Service('/leg/'+str(self.ID)+'/stop', SetBool, self.call_stop)
+        self.srv_init = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/init', SetBool, self.call_init)
+        self.srv_begin = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/enable', SetBool, self.call_enable)
+        self.srv_zero = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/zero', SetBool, self.call_zero)
 
     ### ---------------------- CMD FUNCTIONS ---------------------- ##
     def call_init(self, req):
@@ -39,13 +39,13 @@ class leg():
         else:
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Init was required.')
 
-    def call_begin(self, req):
+    def call_enable(self, req):
         self.begin()
         if req.data:
             self.print_status()
-            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Begin was required.')
+            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Enable was required.')
         else:
-            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Begin was required.')
+            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Enable was required.')
 
     def call_zero(self, req):
         self.move_zero()
@@ -55,13 +55,6 @@ class leg():
         else:
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Zero was required.')
 
-    def call_stop(self, req):
-        self.set_init()
-        if req.data:
-            self.print_status()
-            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Init was required.')
-        else:
-            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Init was required.')
 
     ### ---------------------- PRINT FUNCTIONS ---------------------- ##
 
@@ -77,17 +70,20 @@ class leg():
         
 
     def set_init(self):
+        self.motors[2].stop()
         if self.ID != 2:
             self.motors[0].set_init()
             self.motors[1].set_init()
+        else:
+            self.motors[0].set_init()
+            
 
     def move_zero(self):
         if self.ID != 2:
             self.motors[0].move_zero()
             self.motors[1].move_zero()
+        else:
+            self.motors[0].move_zero()
 
-    def stop(self):
-        for i in range(len(self.motors)):
-            self.motors[i].stop()
     
         

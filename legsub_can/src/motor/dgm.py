@@ -8,7 +8,9 @@ import math
 class motor():
     def __init__(self):
         self.angle = 0.0
+        self.d_angle = 0.0
         self.speed = 0.0
+        self.d_vel = 0.0
         self.current = 0.0
         self.mode = ""
         self.zero = 0.0
@@ -21,11 +23,12 @@ class dgm():
     ZERO = -4.71 # Zero reference
     #
     POSITION_CONTROL = "0xFF"
+    SPEED_CONTROL = "0xFB"
     POSITION_CONTROL_MIN = -4.0*math.pi
     POSITION_CONTROL_MAX = 4.0*math.pi
     POSITION_CONTROL_LOW_LIMIT = 0
     POSITION_CONTROL_HIGH_LIMIT = BITS_16
-    SPEED_CONTROL_MIN = -65.0
+    SPEED_CONTROL_MIN = 0.0
     SPEED_CONTROL_MAX = 65.0
     GAIN_KP_MAX = 1000.0
     GAIN_KD_MAX = 5.0
@@ -38,6 +41,7 @@ class dgm():
     #
     labels={
         "0xFF":"POSITION_CONTROL",
+        "0xFB":"SPEED_CONTROL",
         "0xFC":"MOTOR_ENTER",
         "0xFD":"MOTOR_EXIT",
         "0xFE":"SET_ZERO"
