@@ -86,6 +86,26 @@ class encode():
         #print(_frame.data)
         return _frame
 
+    def set_vel(self, id, d_vel, kp, kd, ff):
+        _frame = frame(id)
+        pos = int(0.0)
+        vel = int(d_vel)
+        _kp = int(_frame.map(kp, 0, dgm.GAIN_KP_MAX, 0, dgm.BITS_12)) 
+        _kd = int(_frame.map(kd, 0, dgm.GAIN_KD_MAX, 0, dgm.BITS_12)) 
+        _ff = int(_frame.map(ff, 0, dgm.GAIN_FF_MAX, 0, dgm.BITS_12)) 
+        #print(pos, vel, _kp, _kd, _ff)
+        _frame.data[0] = ((pos>>8) & 0xff)
+        _frame.data[1] = (pos & 0xff)
+        _frame.data[2] = ((vel >> 4) & 0xff)
+        _frame.data[3] = (((vel & 0x000f) << 4) + ((_kp >> 8) & 0xff))
+        _frame.data[4] = (_kp & 0xff)
+        _frame.data[5] = (_kd >> 4)
+        _frame.data[6] = (((_kd & 0x000f)<<4) + (_ff >> 8))
+        _frame.data[7] = (_ff & 0xff)
+        #print(_frame.data)
+        return _frame
+
+
     def enable(self, id):
         _frame = frame(id)
         _frame.data[7]=ctypes.c_uint8(int(dgm.MOTOR_ENTER, 16)).value
