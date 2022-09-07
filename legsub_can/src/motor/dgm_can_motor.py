@@ -104,7 +104,9 @@ class joint():
     def call_vel(self, msg_vel):
         _frame = frame(self.ID)
         _vel = msg_vel.vector.z
-        _frame = self.encode.set_vel(self.ID, _vel, self.kp, self.kd, self.ff)
+        if abs(_vel) > 1.0:
+            _vel = abs(_vel)/_vel
+        _frame = self.encode.set_vel(self.ID, _vel)
         self.motor.d_vel = _vel
         self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
         self.send2can(_frame)
@@ -159,7 +161,7 @@ class joint():
     def stop(self):
         _frame = frame(self.ID)
         _vel = 0.0
-        _frame = self.encode.set_angle(self.ID, 0.0, _vel, self.kp, self.kd, self.ff)
+        _frame = self.encode.set_vel(self.ID, _vel)
         self.motor.d_vel = _vel
         self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
         self.send2can(_frame)

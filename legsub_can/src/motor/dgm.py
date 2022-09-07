@@ -28,12 +28,12 @@ class dgm():
     POSITION_CONTROL_MAX = 4.0*math.pi
     POSITION_CONTROL_LOW_LIMIT = 0
     POSITION_CONTROL_HIGH_LIMIT = BITS_16
-    SPEED_CONTROL_MIN = 0.0
+    SPEED_CONTROL_MIN = -65.0
     SPEED_CONTROL_MAX = 65.0
     GAIN_KP_MAX = 1000.0
     GAIN_KD_MAX = 5.0
     GAIN_FF_MAX = 33.0
-    CURRENT_MIN = -14.0
+    CURRENT_MIN = 0.0
     CURRENT_MAX = 14.0
     MOTOR_ENTER = "0xFC"
     MOTOR_EXIT = "0xFD"
@@ -86,13 +86,13 @@ class encode():
         #print(_frame.data)
         return _frame
 
-    def set_vel(self, id, d_vel, kp, kd, ff):
+    def set_vel(self, id, d_ff):
         _frame = frame(id)
         pos = int(0.0)
-        vel = int(d_vel)
-        _kp = int(_frame.map(kp, 0, dgm.GAIN_KP_MAX, 0, dgm.BITS_12)) 
-        _kd = int(_frame.map(kd, 0, dgm.GAIN_KD_MAX, 0, dgm.BITS_12)) 
-        _ff = int(_frame.map(ff, 0, dgm.GAIN_FF_MAX, 0, dgm.BITS_12)) 
+        vel = int(0.0)
+        _kp = int(0.0) 
+        _kd = int(0.0) 
+        _ff = int(_frame.map(d_ff, -1.0, 1.0, 0, dgm.BITS_12)) 
         #print(pos, vel, _kp, _kd, _ff)
         _frame.data[0] = ((pos>>8) & 0xff)
         _frame.data[1] = (pos & 0xff)
