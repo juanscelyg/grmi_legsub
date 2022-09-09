@@ -76,7 +76,7 @@ class LegsubGamepadParseNode():
         if msg_joy.buttons[9] == 1:
             self.srv_leg1_init(False)
             self.srv_leg2_init(False)
-            #self.srv_leg3_init(False)
+            self.srv_leg3_init(False)
         if msg_joy.buttons[8] == 1:
             self.srv_leg1_stop(False)
             self.srv_leg2_stop(False)
@@ -97,12 +97,10 @@ class LegsubGamepadParseNode():
                 msg_leg2.header.stamp = rospy.Time.now()
                 msg_leg2.vector.z = self.leg2_angle
                 self.pub_leg2.publish(msg_leg2)
-                '''
                 msg_leg3 = Vector3Stamped()
                 msg_leg3.header.stamp = rospy.Time.now()
-                msg_leg4.vector.z = self.leg3_angle
+                msg_leg3.vector.z = self.leg3_angle
                 self.pub_leg3.publish(msg_leg3)            
-                '''
             if self.flag_vel == True:
                 # vel 1 leg motor 3
                 msg_leg1_vel = Vector3Stamped()

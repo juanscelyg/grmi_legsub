@@ -113,6 +113,7 @@ class leg():
             self.motors[0].move_zero()
 
     def set_stop(self):
-        self.motors[2].stop()
+        if self.ID != 2:
+            self.motors[2].stop()
     
         

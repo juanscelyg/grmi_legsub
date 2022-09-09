@@ -45,5 +45,5 @@ motor7:
   kd : 4.75
   ff : 0.0
   max_vel : 0.025
-  offset : -5.539
-  zero : -5.539
+  offset : -4.71
+  zero : -5.4953
