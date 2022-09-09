@@ -125,11 +125,11 @@ class joint():
 
     def move_angle(self, _angle):
         _frame = frame(self.ID)
-        _angle = _angle*self.saturation + self.offset
         if abs(_angle) > 1.0:
             rospy.logwarn("Angle Motor "+str(self.ID)+" was satured")
             _angle = abs(_angle)/_angle
-        _frame = self.encode.set_angle(self.ID, _angle, self.max_vel, self.kp, self.kd, self.ff)
+        _angle = _angle*self.saturation
+        _frame = self.encode.set_angle(self.ID, _angle+self.offset, self.max_vel, self.kp, self.kd, self.ff)
         self.motor.d_angle = _angle
         self.motor.mode = dgm.labels[dgm.POSITION_CONTROL]
         self.send2can(_frame)

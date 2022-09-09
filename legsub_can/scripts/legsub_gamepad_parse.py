@@ -77,9 +77,10 @@ class LegsubGamepadParseNode():
         if msg_joy.buttons[6] == 1 and msg_joy.buttons[7] == 1:
             self.flag_gamepad = True # Unlocked
             rospy.logwarn("Gamepad has been activated")
+        self.pub_values()
 
 
-    def pub_values(self, event):
+    def pub_values(self):
         if self.flag_gamepad == True:
             if self.flag_angle == True:
                 msg_leg1 = Vector3Stamped()
@@ -112,7 +113,7 @@ if __name__ == '__main__':
     rospy.init_node('legsub_gamepad_parse_node')
     try:
         node = LegsubGamepadParseNode()
-        rospy.Timer(rospy.Duration(node.mytime), node.pub_values)
+        #rospy.Timer(rospy.Duration(node.mytime), node.pub_values)
         rospy.spin()
     except rospy.ROSInterruptException:
         print('caught exception')
