@@ -65,10 +65,14 @@ class LegsubGamepadParseNode():
             self.flag_vel = True
         else:
             self.flag_vel = False
+            self.ref_yaw = 0.0
+            self.ref_moving = 0.0
         if msg_joy.buttons[5] == 1:
             self.flag_angle = True
         else:
-            self.flag_angle = False          
+            self.flag_angle = False  
+            self.ref_hover = 0.0
+            self.ref_roll = 0.0       
         if msg_joy.buttons[9] == 1:
             self.srv_leg1_init(False)
             self.srv_leg2_init(False)
