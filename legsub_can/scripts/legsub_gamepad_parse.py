@@ -26,8 +26,11 @@ class LegsubGamepadParseNode():
         # MODEL
         self.l = 0.223
         self.r = 0.0975
-        self.jac_inv = np.matrix([[1/self.r, self.l/(self.r)],
-        [1/self.r, -self.l/(self.r)]]);
+        self.jac_inv = np.matrix([[1/self.r, self.l/(self.r)],[1/self.r, -self.l/(self.r)]])
+        self.ref_hover = 0.0
+        self.ref_roll = 0.0
+        self.ref_yaw = 0.0
+        self.ref_moving = 0.0
 
         # ROS infraestucture
         self.sub_joy = rospy.Subscriber('/joy', Joy, self.get_values)
