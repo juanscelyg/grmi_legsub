@@ -1,17 +1,19 @@
 motor1:
-  kp : 750.0
+  kp : 850.0
   kd : 4.75
   ff : 0.0
   max_vel : 0.025
   offset : -5.84
   zero : -5.27
+  saturation : 0.56
 motor2:
-  kp : 750.0
+  kp : 850.0
   kd : 4.75
   ff : 0.0
   max_vel : 0.025
   offset : -3.58
   zero : -4.15
+  saturation : 0.56
 motor3:
   kp : 0.0
   kd : 0.0
@@ -19,20 +21,23 @@ motor3:
   max_vel : 0.0
   offset : 0.0
   zero : 0.0
+  saturation : 0.0
 motor4:
-  kp : 750.0
+  kp : 850.0
   kd : 4.75
   ff : 0.0
   max_vel : 0.025
   offset : -3.58
   zero : -4.15
+  saturation : 0.56
 motor5:
-  kp : 750.0
+  kp : 850.0
   kd : 4.75
   ff : 0.0
   max_vel : 0.025
   offset : -5.84
   zero : -5.27
+  saturation : 0.56
 motor6:
   kp : 0.0
   kd : 0.0
@@ -40,10 +45,12 @@ motor6:
   max_vel : 0.0
   offset : 0.0
   zero: 0.0
+  saturation : 0.0
 motor7:
-  kp : 750.0
+  kp : 850.0
   kd : 4.75
   ff : 0.0
   max_vel : 0.025
   offset : -4.71
   zero : -5.4953
+  saturation : 1.0

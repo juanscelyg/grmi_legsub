@@ -25,13 +25,13 @@ class joint():
         self.motor.mode = dgm.labels[dgm.MOTOR_EXIT]
         self.motor.zero = dgm.ZERO
         self.motor.d_angle = dgm.ZERO
+        # Parameters
         self.max_vel = rospy.get_param("motor"+str(id)+"/max_vel")
         self.kp  = rospy.get_param("motor"+str(id)+"/kp")
         self.kd  = rospy.get_param("motor"+str(id)+"/kd")
         self.ff  = rospy.get_param("motor"+str(id)+"/ff")
         self.offset = rospy.get_param("motor"+str(id)+"/zero")
-        self.timer_time = 0.5
-        self.saturation = 0.56 # max angle
+        self.saturation = rospy.get_param("motor"+str(id)+"/saturation")
 
         ### ROS infrastructure 
         ## CAN

@@ -21,7 +21,7 @@ class LegsubGamepadParseNode():
         self.leg3_angle = 0.0
         self.leg1_vel = 0.0
         self.leg2_vel = 0.0
-        self.step = 0.05
+        self.step = 0.1
 
         # MODEL
         self.l = 0.223
