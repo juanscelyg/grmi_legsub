@@ -29,6 +29,7 @@ class leg():
         self.srv_init = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/init', SetBool, self.call_init)
         self.srv_begin = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/enable', SetBool, self.call_enable)
         self.srv_zero = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/zero', SetBool, self.call_zero)
+        self.srv_stop = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/stop', SetBool, self.call_stop)
 
         # TOPICS
         self.pub_move = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/cmd_pos', Vector3Stamped, self.call_pos)
@@ -58,6 +59,14 @@ class leg():
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Zero was required.')
         else:
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Zero was required.')
+
+    def call_stop(self, req):
+        self.set_stop()
+        if req.data:
+            self.print_status()
+            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Stop was required.')
+        else:
+            return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Stop was required.')
 
     def call_pos(self, msg):
         _pos = msg.vector.z
@@ -103,5 +112,7 @@ class leg():
         else:
             self.motors[0].move_zero()
 
+    def set_stop(self):
+        self.motors[2].stop()
     
         

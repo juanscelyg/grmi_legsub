@@ -44,9 +44,8 @@ class LegsubGamepadParseNode():
         self.srv_leg1_init = rospy.ServiceProxy('/can/0/leg/0/init', SetBool)
         self.srv_leg2_init = rospy.ServiceProxy('/can/0/leg/1/init', SetBool)
         self.srv_leg3_init = rospy.ServiceProxy('/can/0/leg/2/init', SetBool)
-        self.srv_leg1_zero = rospy.ServiceProxy('/can/0/leg/0/zero', SetBool)
-        self.srv_leg2_zero = rospy.ServiceProxy('/can/0/leg/1/zero', SetBool)
-        self.srv_leg3_zero = rospy.ServiceProxy('/can/0/leg/2/zero', SetBool)
+        self.srv_leg1_stop = rospy.ServiceProxy('/can/0/leg/0/stop', SetBool)
+        self.srv_leg2_stop = rospy.ServiceProxy('/can/0/leg/1/stop', SetBool)
 
     def get_values(self, msg_joy):
         self.ref_hover = self.ref_hover + msg_joy.buttons[2]*self.step - msg_joy.buttons[0]*self.step
@@ -75,9 +74,8 @@ class LegsubGamepadParseNode():
             self.srv_leg2_init(False)
             #self.srv_leg3_init(False)
         if msg_joy.buttons[8] == 1:
-            self.srv_leg1_zero(False)
-            self.srv_leg2_zero(False)
-            #self.srv_leg3_zero(False)
+            self.srv_leg1_stop(False)
+            self.srv_leg2_stop(False)
         if msg_joy.buttons[6] == 1 and msg_joy.buttons[7] == 1:
             self.flag_gamepad = True # Unlocked
             rospy.logwarn("Gamepad has been activated")
