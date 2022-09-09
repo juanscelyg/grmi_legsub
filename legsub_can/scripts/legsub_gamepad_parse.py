@@ -37,9 +37,9 @@ class LegsubGamepadParseNode():
         self.pub_vel_leg2 = rospy.Publisher('/can/0/leg/1/cmd_vel', Vector3Stamped, queue_size=1)
 
         # ROS Service
-        self.srv_leg1_init = rospy.ServiceProxy('/can/0/leg/0/set_init', SetBool)
-        self.srv_leg2_init = rospy.ServiceProxy('/can/0/leg/1/set_init', SetBool)
-        self.srv_leg3_init = rospy.ServiceProxy('/can/0/leg/2/set_init', SetBool)
+        self.srv_leg1_init = rospy.ServiceProxy('/can/0/leg/0/init', SetBool)
+        self.srv_leg2_init = rospy.ServiceProxy('/can/0/leg/1/init', SetBool)
+        self.srv_leg3_init = rospy.ServiceProxy('/can/0/leg/2/init', SetBool)
         self.srv_leg1_zero = rospy.ServiceProxy('/can/0/leg/0/zero', SetBool)
         self.srv_leg2_zero = rospy.ServiceProxy('/can/0/leg/1/zero', SetBool)
         self.srv_leg3_zero = rospy.ServiceProxy('/can/0/leg/2/zero', SetBool)
