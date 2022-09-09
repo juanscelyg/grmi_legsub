@@ -77,7 +77,7 @@ class leg():
             self.motors[0].move_angle(-_pos)
             self.motors[1].move_angle(_pos)
         elif self.ID == 2:
-            self.motors[0].move_angle(_pos)
+            self.motors[0].move_angle(-_pos)
 
     def call_vel(self, msg):
         _vel = msg.vector.z  
@@ -97,10 +97,10 @@ class leg():
         
 
     def set_init(self):
-        self.motors[2].stop()
         if self.ID != 2:
             self.motors[0].set_init()
             self.motors[1].set_init()
+            self.motors[2].stop()
         else:
             self.motors[0].set_init()
             
