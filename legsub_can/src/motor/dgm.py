@@ -92,7 +92,7 @@ class encode():
         vel = int(0.0)
         _kp = int(0.0) 
         _kd = int(0.0) 
-        _ff = int(_frame.map(d_ff, -1.0, 1.0, 0, dgm.BITS_12)) 
+        _ff = int(_frame.map(d_ff, -10.0, 10.0, 0, dgm.BITS_12)) 
         #print(pos, vel, _kp, _kd, _ff)
         _frame.data[0] = ((pos>>8) & 0xff)
         _frame.data[1] = (pos & 0xff)

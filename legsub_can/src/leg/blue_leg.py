@@ -30,6 +30,10 @@ class leg():
         self.srv_begin = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/enable', SetBool, self.call_enable)
         self.srv_zero = rospy.Service('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/zero', SetBool, self.call_zero)
 
+        # TOPICS
+        self.pub_move = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/cmd_pos', Vector3Stamped, self.call_pos)
+        self.pub_vel = rospy.Subscriber('/can/'+str(self.can_network)+'/leg/'+str(self.ID)+'/cmd_vel', Vector3Stamped, self.call_vel)
+
     ### ---------------------- CMD FUNCTIONS ---------------------- ##
     def call_init(self, req):
         self.set_init()
@@ -55,6 +59,20 @@ class leg():
         else:
             return SetBoolResponse(req.data, 'QUERY::  Leg: '+str(self.ID)+' Zero was required.')
 
+    def call_pos(self, msg):
+        _pos = msg.vector.z
+        if self.ID == 0:
+            self.motors[0].move_angle(_pos)
+            self.motors[1].move_angle(-_pos)
+        elif self.ID == 1:
+            self.motors[0].move_angle(-_pos)
+            self.motors[1].move_angle(_pos)
+        elif self.ID == 2:
+            self.motors[0].move_angle(-_pos)
+
+    def call_vel(self, msg):
+        _vel = msg.vector.z  
+        self.motors[2].move_vel(_vel)
 
     ### ---------------------- PRINT FUNCTIONS ---------------------- ##
 

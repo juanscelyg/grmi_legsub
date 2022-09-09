@@ -31,6 +31,7 @@ generate_messages(
 #)
 
 catkin_install_python(PROGRAMS  scripts/legsub_can_parse.py
+                                scripts/legsub_gamepad_parse.py
                         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch config cfg

@@ -29,8 +29,9 @@ class joint():
         self.kp  = rospy.get_param("motor"+str(id)+"/kp")
         self.kd  = rospy.get_param("motor"+str(id)+"/kd")
         self.ff  = rospy.get_param("motor"+str(id)+"/ff")
-        self.offset = rospy.get_param("motor"+str(id)+"/offset")
+        self.offset = rospy.get_param("motor"+str(id)+"/zero")
         self.timer_time = 0.5
+        self.saturation = 0.56 # max angle
 
         ### ROS infrastructure 
         ## CAN
@@ -87,32 +88,12 @@ class joint():
     ### ---------------------- CMD FUNCTIONS ---------------------- ##
 
     def call_pos(self, msg_pos):
-        _frame = frame(self.ID)
         _angle = msg_pos.vector.z
-        _frame = self.encode.set_angle(self.ID, _angle, self.max_vel, self.kp, self.kd, self.ff)
-        self.motor.d_angle = _angle
-        self.motor.mode = dgm.labels[dgm.POSITION_CONTROL]
-        self.send2can(_frame)
-        # visualize
-        self.get_state()
-        # Publish angle
-        msg_angle = Vector3Stamped()
-        msg_angle.header.stamp = rospy.Time.now()
-        msg_angle.vector.z = self.motor.angle
-        self.pub_pos.publish(msg_angle)
+        self.move_angle(_angle)
 
     def call_vel(self, msg_vel):
-        _frame = frame(self.ID)
         _vel = msg_vel.vector.z
-        if abs(_vel) > 1.0:
-            _vel = abs(_vel)/_vel
-        _frame = self.encode.set_vel(self.ID, _vel)
-        self.motor.d_vel = _vel
-        self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
-        self.send2can(_frame)
-        # visualize
-        self.get_state()
-
+        self.move_vel(_vel)
 
     def call_state(self, req):
         self.print_status()
@@ -141,6 +122,36 @@ class joint():
 
 
     ### ---------------------- API FUNCTIONS ---------------------- ##
+
+    def move_angle(self, _angle):
+        _frame = frame(self.ID)
+        _angle = _angle*self.saturation + self.offset
+        if abs(_angle) > 1.0:
+            rospy.logwarn("Angle Motor "+str(self.ID)+" was satured")
+            _angle = abs(_angle)/_angle
+        _frame = self.encode.set_angle(self.ID, _angle, self.max_vel, self.kp, self.kd, self.ff)
+        self.motor.d_angle = _angle
+        self.motor.mode = dgm.labels[dgm.POSITION_CONTROL]
+        self.send2can(_frame)
+        # visualize
+        self.get_state()
+        # Publish angle
+        msg_angle = Vector3Stamped()
+        msg_angle.header.stamp = rospy.Time.now()
+        msg_angle.vector.z = self.motor.angle
+        self.pub_pos.publish(msg_angle)
+
+    def move_vel(self, _vel):
+        _frame = frame(self.ID)
+        if abs(_vel) > 10.0:
+            rospy.logwarn("Vel Motor "+str(self.ID)+" was satured")
+            _vel = abs(_vel)/_vel
+        _frame = self.encode.set_vel(self.ID, _vel)
+        self.motor.d_vel = _vel
+        self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
+        self.send2can(_frame)
+        # visualize
+        self.get_state()
 
     def set_init(self):
         _frame = frame(self.ID)
