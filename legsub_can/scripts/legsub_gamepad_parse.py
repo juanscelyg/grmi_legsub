@@ -21,6 +21,7 @@ class LegsubGamepadParseNode():
         self.leg3_angle = 0.0
         self.leg1_vel = 0.0
         self.leg2_vel = 0.0
+        self.step = 0.05
 
         # MODEL
         self.l = 0.223
@@ -45,17 +46,17 @@ class LegsubGamepadParseNode():
         self.srv_leg3_zero = rospy.ServiceProxy('/can/0/leg/2/zero', SetBool)
 
     def get_values(self, msg_joy):
-        ref_hover = msg_joy.axes[4]
-        ref_roll = msg_joy.axes[3]
-        ref_yaw = msg_joy.axes[0]
-        ref_moving = msg_joy.axes[1]
+        self.ref_hover = self.ref_hover + msg_joy.button[2]*self.step - msg_joy.button[0]*self.step
+        self.ref_roll = self.ref_roll + msg_joy.button[3]*self.step - msg_joy.button[1]*self.step
+        self.ref_yaw = self.ref_yaw + msg_joy.button[14]*self.step - msg_joy.button[15]*self.step
+        self.ref_moving = self.ref_moving + msg_joy.button[12]*self.step - msg_joy.button[13]*self.step
         # calc vel
         vel = np.matrix([[ref_moving],[ref_yaw]])
         [self.leg1_vel, self.leg2_vel] = np.matmul(self.jac_inv, vel)
         # calc ang
-        self.leg1_angle = ref_hover - ref_roll
-        self.leg2_angle = ref_hover + ref_roll
-        self.leg3_angle = ref_hover + ref_roll
+        self.leg1_angle = self.ref_hover - self.ref_roll
+        self.leg2_angle = self.ref_hover + self.ref_roll
+        self.leg3_angle = self.ref_hover 
 
         #Special buttons
         if msg_joy.buttons[4] == 1:
