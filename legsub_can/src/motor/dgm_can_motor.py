@@ -134,7 +134,7 @@ class joint():
         self.motor.mode = dgm.labels[dgm.POSITION_CONTROL]
         self.send2can(_frame)
         # visualize
-        self.get_state()
+        #self.get_state()
         # Publish angle
         msg_angle = Vector3Stamped()
         msg_angle.header.stamp = rospy.Time.now()
@@ -151,7 +151,7 @@ class joint():
         self.motor.mode = dgm.labels[dgm.SPEED_CONTROL]
         self.send2can(_frame)
         # visualize
-        self.get_state()
+        #self.get_state()
 
     def set_init(self):
         _frame = frame(self.ID)

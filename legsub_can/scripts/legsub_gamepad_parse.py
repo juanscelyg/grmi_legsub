@@ -71,13 +71,13 @@ class LegsubGamepadParseNode():
         else:
             self.flag_angle = False          
         if msg_joy.buttons[9] == 1:
-            self.srv_leg1_init(True)
-            self.srv_leg2_init(True)
-            #self.srv_leg3_init(True)
+            self.srv_leg1_init(False)
+            self.srv_leg2_init(False)
+            #self.srv_leg3_init(False)
         if msg_joy.buttons[8] == 1:
-            self.srv_leg1_zero(True)
-            self.srv_leg2_zero(True)
-            #self.srv_leg3_zero(True)
+            self.srv_leg1_zero(False)
+            self.srv_leg2_zero(False)
+            #self.srv_leg3_zero(False)
         if msg_joy.buttons[6] == 1 and msg_joy.buttons[7] == 1:
             self.flag_gamepad = True # Unlocked
             rospy.logwarn("Gamepad has been activated")
