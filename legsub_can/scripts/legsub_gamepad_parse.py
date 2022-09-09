@@ -30,11 +30,19 @@ class LegsubGamepadParseNode():
 
         # ROS infraestucture
         self.sub_joy = rospy.Subscriber('/joy', Joy, self.get_values)
-        self.pub_leg1 = rospy.Publisher('/can/0/leg/0/cmd_pos', Vector3Stamped, queue_size=5)
-        self.pub_leg2 = rospy.Publisher('/can/0/leg/1/cmd_pos', Vector3Stamped, queue_size=5)
-        self.pub_leg3 = rospy.Publisher('/can/0/leg/2/cmd_pos', Vector3Stamped, queue_size=5)
-        self.pub_vel_leg1 = rospy.Publisher('/can/0/leg/0/cmd_vel', Vector3Stamped, queue_size=5)
-        self.pub_vel_leg2 = rospy.Publisher('/can/0/leg/1/cmd_vel', Vector3Stamped, queue_size=5)
+        self.pub_leg1 = rospy.Publisher('/can/0/leg/0/cmd_pos', Vector3Stamped, queue_size=1)
+        self.pub_leg2 = rospy.Publisher('/can/0/leg/1/cmd_pos', Vector3Stamped, queue_size=1)
+        self.pub_leg3 = rospy.Publisher('/can/0/leg/2/cmd_pos', Vector3Stamped, queue_size=1)
+        self.pub_vel_leg1 = rospy.Publisher('/can/0/leg/0/cmd_vel', Vector3Stamped, queue_size=1)
+        self.pub_vel_leg2 = rospy.Publisher('/can/0/leg/1/cmd_vel', Vector3Stamped, queue_size=1)
+
+        # ROS Service
+        self.srv_leg1_init = rospy.ServiceProxy('/can/0/leg/0/set_init', SetBool)
+        self.srv_leg2_init = rospy.ServiceProxy('/can/0/leg/1/set_init', SetBool)
+        self.srv_leg3_init = rospy.ServiceProxy('/can/0/leg/2/set_init', SetBool)
+        self.srv_leg1_zero = rospy.ServiceProxy('/can/0/leg/0/zero', SetBool)
+        self.srv_leg2_zero = rospy.ServiceProxy('/can/0/leg/1/zero', SetBool)
+        self.srv_leg3_zero = rospy.ServiceProxy('/can/0/leg/2/zero', SetBool)
 
     def get_values(self, msg_joy):
         ref_hover = msg_joy.axes[4]
@@ -51,13 +59,13 @@ class LegsubGamepadParseNode():
 
         #Special buttons
         if msg_joy.buttons[9] == 1:
-            rosservice.call_service('/can/0/leg/0/set_init', True, SetBool)
-            rosservice.call_service('/can/0/leg/1/set_init', True, SetBool)
-            #rosservice.call_service('/can/0/leg/2/set_init', True, SetBool)
+            self.srv_leg1_init(True)
+            self.srv_leg2_init(True)
+            #self.srv_leg3_init(True)
         if msg_joy.buttons[8] == 1:
-            rosservice.call_service('/can/0/leg/0/zero', True, SetBool)
-            rosservice.call_service('/can/0/leg/1/zero', True, SetBool)
-            #rosservice.call_service('/can/0/leg/2/zero', True, SetBool)
+            self.srv_leg1_zero(True)
+            self.srv_leg2_zero(True)
+            #self.srv_leg3_zero(True)
         if msg_joy.buttons[6] == 1 and msg_joy.buttons[7] == 1:
             self.flag_angles = True # Unlocked
             rospy.logwarn("Gamepad has been activated")
