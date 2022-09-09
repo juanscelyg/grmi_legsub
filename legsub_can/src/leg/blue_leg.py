@@ -63,9 +63,9 @@ class leg():
         _pos = msg.vector.z
         if self.ID == 0:
             self.motors[0].move_angle(_pos)
-            self.motors[1].move_angle(_pos)
+            self.motors[1].move_angle(-_pos)
         elif self.ID == 1:
-            self.motors[0].move_angle(_pos)
+            self.motors[0].move_angle(-_pos)
             self.motors[1].move_angle(_pos)
         elif self.ID == 2:
             self.motors[0].move_angle(_pos)
