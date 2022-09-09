@@ -15,7 +15,7 @@ class LegsubGamepadParseNode():
         self.mytime = 0.1
 
         # Init constants
-        self.flag_angles = False
+        self.flag_gamepad = False
         self.leg1_angle = 0.0
         self.leg2_angle = 0.0
         self.leg3_angle = 0.0
@@ -58,6 +58,14 @@ class LegsubGamepadParseNode():
         self.leg3_angle = ref_hover + ref_roll
 
         #Special buttons
+        if msg_joy.buttons[4] == 1:
+            self.flag_vel = True
+        else:
+            self.flag_vel = False
+        if msg_joy.buttons[5] == 1:
+            self.flag_angle = True
+        else:
+            self.flag_angle = False          
         if msg_joy.buttons[9] == 1:
             self.srv_leg1_init(True)
             self.srv_leg2_init(True)
@@ -67,36 +75,38 @@ class LegsubGamepadParseNode():
             self.srv_leg2_zero(True)
             #self.srv_leg3_zero(True)
         if msg_joy.buttons[6] == 1 and msg_joy.buttons[7] == 1:
-            self.flag_angles = True # Unlocked
+            self.flag_gamepad = True # Unlocked
             rospy.logwarn("Gamepad has been activated")
 
 
     def pub_values(self, event):
-        if self.flag_angles == True:
-            msg_leg1 = Vector3Stamped()
-            msg_leg1.header.stamp = rospy.Time.now()
-            msg_leg1.vector.z = self.leg1_angle
-            self.pub_leg1.publish(msg_leg1)
-            msg_leg2 = Vector3Stamped()
-            msg_leg2.header.stamp = rospy.Time.now()
-            msg_leg2.vector.z = self.leg2_angle
-            self.pub_leg2.publish(msg_leg2)
-            '''
-            msg_leg3 = Vector3Stamped()
-            msg_leg3.header.stamp = rospy.Time.now()
-            msg_leg4.vector.z = self.leg3_angle
-            self.pub_leg3.publish(msg_leg3)            
-            '''
-            # vel 1 leg motor 3
-            msg_leg1_vel = Vector3Stamped()
-            msg_leg1_vel.header.stamp = rospy.Time.now()
-            msg_leg1_vel.vector.z = self.leg1_vel
-            self.pub_vel_leg1.publish(msg_leg1_vel)
-            # vel 2 leg motor 6
-            msg_leg2_vel = Vector3Stamped()
-            msg_leg2_vel.header.stamp = rospy.Time.now()
-            msg_leg2_vel.vector.z = -self.leg2_vel
-            self.pub_vel_leg2.publish(msg_leg2_vel)
+        if self.flag_gamepad == True:
+            if self.flag_angle == True:
+                msg_leg1 = Vector3Stamped()
+                msg_leg1.header.stamp = rospy.Time.now()
+                msg_leg1.vector.z = self.leg1_angle
+                self.pub_leg1.publish(msg_leg1)
+                msg_leg2 = Vector3Stamped()
+                msg_leg2.header.stamp = rospy.Time.now()
+                msg_leg2.vector.z = self.leg2_angle
+                self.pub_leg2.publish(msg_leg2)
+                '''
+                msg_leg3 = Vector3Stamped()
+                msg_leg3.header.stamp = rospy.Time.now()
+                msg_leg4.vector.z = self.leg3_angle
+                self.pub_leg3.publish(msg_leg3)            
+                '''
+            if self.flag_vel == True:
+                # vel 1 leg motor 3
+                msg_leg1_vel = Vector3Stamped()
+                msg_leg1_vel.header.stamp = rospy.Time.now()
+                msg_leg1_vel.vector.z = self.leg1_vel
+                self.pub_vel_leg1.publish(msg_leg1_vel)
+                # vel 2 leg motor 6
+                msg_leg2_vel = Vector3Stamped()
+                msg_leg2_vel.header.stamp = rospy.Time.now()
+                msg_leg2_vel.vector.z = -self.leg2_vel
+                self.pub_vel_leg2.publish(msg_leg2_vel)
 
 if __name__ == '__main__':
     rospy.init_node('legsub_gamepad_parse_node')
