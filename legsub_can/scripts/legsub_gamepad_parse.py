@@ -16,7 +16,6 @@ class LegsubGamepadParseNode():
 
         # Init constants
         self.flag_angles = False
-        self.flag_move = False
         self.leg1_angle = 0.0
         self.leg2_angle = 0.0
         self.leg3_angle = 0.0
@@ -52,24 +51,16 @@ class LegsubGamepadParseNode():
 
         #Special buttons
         if msg_joy.buttons[9] == 1:
-            rosservice.call_service('/can/0/leg/0/set_init', SetBool, True)
-            rosservice.call_service('/can/0/leg/1/set_init', SetBool, True)
-            #rosservice.call_service('/can/0/leg/2/set_init', SetBool, True)
+            rosservice.call_service('/can/0/leg/0/set_init', True, SetBool)
+            rosservice.call_service('/can/0/leg/1/set_init', True, SetBool)
+            #rosservice.call_service('/can/0/leg/2/set_init', True, SetBool)
         if msg_joy.buttons[8] == 1:
-            rosservice.call_service('/can/0/leg/0/zero', SetBool, True)
-            rosservice.call_service('/can/0/leg/1/zero', SetBool, True)
-            #rosservice.call_service('/can/0/leg/2/zero', SetBool, True)
-        if msg_joy.buttons[7] == 1:
+            rosservice.call_service('/can/0/leg/0/zero', True, SetBool)
+            rosservice.call_service('/can/0/leg/1/zero', True, SetBool)
+            #rosservice.call_service('/can/0/leg/2/zero', True, SetBool)
+        if msg_joy.buttons[6] == 1 and msg_joy.buttons[7] == 1:
             self.flag_angles = True # Unlocked
-            rospy.logwarn("Angle movements activated")
-        else:
-            self.flag_angles = False
-
-        if msg_joy.buttons[6] == 1:
-            self.flag_move = True # Unlocked
-            rospy.logwarn("Moving movements activated")
-        else:
-            self.flag_move = False
+            rospy.logwarn("Gamepad has been activated")
 
 
     def pub_values(self, event):
@@ -88,8 +79,6 @@ class LegsubGamepadParseNode():
             msg_leg4.vector.z = self.leg3_angle
             self.pub_leg3.publish(msg_leg3)            
             '''
-
-        if self.flag_move == True:
             # vel 1 leg motor 3
             msg_leg1_vel = Vector3Stamped()
             msg_leg1_vel.header.stamp = rospy.Time.now()

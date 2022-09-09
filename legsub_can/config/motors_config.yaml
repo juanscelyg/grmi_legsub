@@ -39,6 +39,7 @@ motor6:
   ff : 0.0
   max_vel : 0.0
   offset : 0.0
+  zero: 0.0
 motor7:
   kp : 750.0
   kd : 4.75
